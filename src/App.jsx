@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Header from "./components/Header";
 import AddEmployeeModal from "./components/AddEmployeeModal";
@@ -7,18 +7,19 @@ import EmployeeList from "./components/EmployeeList";
 
 function App() {
 
-    const [employees, setEmployees] = useState([
-        {
-            id: 1,
-            name: "David Hardy",
-            email: "thomashardy@mail.com",
-            address: "89 Chiaroscuro Rd, Portland, USA",
-            phone: "(171) 555-2222"
-        }
-    ]);
+    const [employees, setEmployees] = useState(() => {
+        const savedEmployees = localStorage.getItem("employees");
+        return savedEmployees ? JSON.parse(savedEmployees) : [];
+    });
+
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [selectedEmployees, setSelectedEmployees] = useState([]);
+
+    useEffect(() => {
+        localStorage.setItem("employees", JSON.stringify(employees));
+    }, [employees])
 
     function addEmployee(newEmployee) {
         setEmployees(prevEmployees => [
@@ -32,10 +33,8 @@ function App() {
 
     function editEmployee(updatedEmployee) {
 
-        console.log("updatedEmployee", updatedEmployee);
-
-        setEmployees(prevEmployees => 
-            prevEmployees.map(emp => 
+        setEmployees(prevEmployees =>
+             prevEmployees.map(emp => 
                 emp.id === updatedEmployee.id ? updatedEmployee : emp
             )
         )
@@ -46,16 +45,47 @@ function App() {
         setSelectedEmployee(employee)
     }
 
+    function deleteClick(employee) {
+        const confirmed = window.confirm("Are you sure you want to delete this employee?");
+
+        if (confirmed) {
+            setEmployees(prevEmployees =>
+                prevEmployees.filter(emp => emp.id !== employee.id)
+            );
+            setSelectedEmployees([]);
+        }
+    }
+
     function closeEditModal() {
         setIsEditModalOpen(false);
         setSelectedEmployee(null);
     }
 
+    function deleteSelectedEmployees() {
+        const confirmed = window.confirm("Are you sure you want to delete the employees?");
+
+        if (confirmed) {
+            setEmployees(prevEmployees =>
+                prevEmployees.filter(emp => !selectedEmployees.includes(emp.id))
+            );
+            setSelectedEmployees([]);
+        }
+    }
+
     return (
         <div className="container">
             <div className="table-wrapper">
-                <Header onOpenAddModal={() => setIsAddModalOpen(true)} />
-                <EmployeeList employees={employees} onEditClick={editClick} />
+                <Header
+                     onOpenAddModal={() => setIsAddModalOpen(true)}
+                     onDeleteSelected={deleteSelectedEmployees}
+                 />
+                 <EmployeeList
+                     employees={employees}
+                     onEditClick={editClick}
+                     onDeleteClick={deleteClick}
+                     selectedEmployees = {selectedEmployees}
+                     setSelectedEmployees = {setSelectedEmployees}
+                 />
                 <AddEmployeeModal isOpen={isAddModalOpen} onCloseAddModal={() => setIsAddModalOpen(false)} onAddEmployee={addEmployee} />
                 <EditEmployeeModal
                     isOpen={isEditModalOpen}
