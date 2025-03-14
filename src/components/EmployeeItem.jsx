@@ -23,7 +23,7 @@ function EmployeeItem({ employee, onEditClick, onDeleteClick, isSelected, onTogg
         </td>
         <td>{employee.name}</td>
         <td>{employee.email}</td>
-        <td>{employee.address}A</td>
+        <td>{employee.address}</td>
         <td>{employee.phone}</td>
         <td>{employee.gender}</td>
         <td>{employee.department}</td>
