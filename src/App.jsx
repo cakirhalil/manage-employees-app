@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 import Header from "./components/Header";
 import EmployeeList from "./components/EmployeeList";
 import EmployeeModal from "./components/EmployeeModal";
+import Pagination from "./components/Pagination";
 
 function App() {
 
@@ -15,6 +16,14 @@ function App() {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [selectedEmployees, setSelectedEmployees] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+     const itemsPerPage = 2;
+ 
+     const currentEmployees = useMemo(() => {
+         const indexOfLastEmployee = currentPage * itemsPerPage;
+         const indexOfFirstEmployee = indexOfLastEmployee - itemsPerPage;
+         return employees.slice(indexOfFirstEmployee, indexOfLastEmployee);
+        }, [employees, currentPage])
 
     useEffect(() => {
         localStorage.setItem("employees", JSON.stringify(employees));
@@ -71,6 +80,10 @@ function App() {
         }
     }
 
+    function handlePageChange(pageNumber) {
+        setCurrentPage(pageNumber);
+    }
+
     return (
         <div className="container">
             <div className="table-wrapper">
@@ -79,7 +92,7 @@ function App() {
                      onDeleteSelected={deleteSelectedEmployees}
                  />
                  <EmployeeList
-                     employees={employees}
+                     employees={currentEmployees}
                      onEditClick={editClick}
                      onDeleteClick={deleteClick}
                      selectedEmployees = {selectedEmployees}
@@ -98,6 +111,14 @@ function App() {
                      onClose={closeEditModal}
                      onSubmit={editEmployee}
                 />
+                <div className="clearfix">
+                     <div className="hint-text">Showing <b>{currentEmployees.length}</b> out of <b>{employees.length}</b> entries</div>
+                     <Pagination 
+                         currentPage={currentPage}
+                         totalPages={Math.ceil(employees.length / itemsPerPage)}
+                         onPageChange={handlePageChange}
+                     />
+                 </div>
             </div>
         </div>
     )
