@@ -17,7 +17,7 @@ function App() {
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [selectedEmployees, setSelectedEmployees] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-     const itemsPerPage = 2;
+     const itemsPerPage = 5;
  
      const currentEmployees = useMemo(() => {
          const indexOfLastEmployee = currentPage * itemsPerPage;
